@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import useFetch from './../componets/useFetch';
+import useFetch from '../components/useFetch';
 import { useSearchParams } from 'react-router-dom';
 import { CharactersContext } from '../App';
 
@@ -12,48 +12,58 @@ const Blog = () => {
     // const handleChange = (e) => {
     //     setSerchParams({ [e.target.name]: e.target.value })
     // }
-    const  [setCharactersList] = useContext(CharactersContext)
+    // Obtener el contexto y desestructurar la función setCharactersList
+    const [setCharactersList] = useContext(CharactersContext);
 
+    // Obtener y establecer parámetros de búsqueda de la URL
     const [searchParams] = useSearchParams();
     const filter = searchParams.get('filter') || '';
 
+    // Estado local para el campo de búsqueda
     const [searchInput, setSearchInput] = useState(filter);
 
+    // Hook para manejar la navegación entre rutas
     const navigate = useNavigate();
 
+    // Manejador para el cambio en el campo de búsqueda
     const handleChange = (e) => {
         setSearchInput(e.target.value);
     };
 
     // Manejador de la acción de búsqueda
     const handleSearch = () => {
-        // Actualiza el parámetro 'filter' en la URL y navega
+        // Actualizar el parámetro 'filter' en la URL y navegar a la nueva URL
         navigate(`/blog?filter=${encodeURIComponent(searchInput)}`);
     };
 
+    // Filtrar los personajes en función del parámetro de búsqueda
     const filteredCharacters = data
         ? data.results.filter((character) =>
             character.name.toLowerCase().includes(filter.toLowerCase())
         )
         : [];
 
+    // Efecto secundario para actualizar el contexto cuando los datos cambian
     useEffect(() => {
         if (data) {
             setCharactersList(data.results);
         }
     }, [data, setCharactersList]);
-    
-    if (loading) return (<h1>Buscando el Morty adecuado...</h1>)
-    if (error) return (<h1>La pistola de portales no funciona...</h1>)
 
-    console.log(data.results);
+    // Manejo de casos de carga y errores
+    if (loading) return (<h1>Buscando el Morty adecuado...</h1>);
+    if (error) return (<h1>La pistola de portales no funciona... Detalles del error: {error.message}</h1>);
+
+    // Renderizado de la interfaz de usuario
     return (
         <div>
             <h2>Blog - Elige tu personaje favorito</h2>
 
+            {/* Campo de búsqueda */}
             <input type="text" value={searchInput} onChange={handleChange} />
             <button onClick={handleSearch}>Buscar</button>
 
+            {/* Lista de personajes filtrados */}
             {filteredCharacters.map(item => (
                 <div key={item.id}>
                     <Link to={`/blog/${item.id}`}>
